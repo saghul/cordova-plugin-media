@@ -302,7 +302,20 @@
                     bPlayAudioWhenScreenIsLocked = [playAudioWhenScreenIsLocked boolValue];
                 }
 
-                NSString* sessionCategory = bPlayAudioWhenScreenIsLocked ? AVAudioSessionCategoryPlayback : AVAudioSessionCategorySoloAmbient;
+                NSNumber* playAudioAmbient = [options objectForKey:@"playAudioAmbient"];
+                BOOL bPlayAudioAmbient = NO;
+                if (playAudioAmbient != nil) {
+                    bPlayAudioAmbient = [playAudioAmbient boolValue];
+                }
+
+                NSString* sessionCategory = nil;
+                if (bPlayAudioAmbient) {
+                    sessionCategory = AVAudioSessionCategoryAmbient;
+                } else if (bPlayAudioWhenScreenIsLocked) {
+                    sessionCategory = AVAudioSessionCategoryPlayback;
+                } else {
+                    sessionCategory = AVAudioSessionCategorySoloAmbient;
+                }
                 [self.avSession setCategory:sessionCategory error:&err];
                 if (![self.avSession setActive:YES error:&err]) {
                     // other audio with higher priority that does not allow mixing could cause this to fail
